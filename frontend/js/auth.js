@@ -1,5 +1,5 @@
-// API_URL akan diambil dari config.js yang diload sebelum auth.js
-
+// Pastikan API_URL ada
+const API_URL = window.API_URL || '/api';
 
 // Login Form Handler
 const loginForm = document.getElementById('loginForm');
@@ -39,7 +39,7 @@ if (loginForm) {
             }
         } catch (error) {
             console.error('Error:', error);
-            errorMessage.textContent = 'Terjadi kesalahan. Pastikan server backend berjalan.';
+            errorMessage.textContent = 'Network/Syntax Error: ' + error.message;
             errorMessage.classList.add('show');
         }
     });
