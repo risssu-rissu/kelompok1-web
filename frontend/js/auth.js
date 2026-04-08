@@ -1,5 +1,4 @@
-// Pastikan API_URL ada
-const API_URL = window.API_URL || '/api';
+// API_URL sudah diambil secara otomatis dari config.js
 
 // Login Form Handler
 const loginForm = document.getElementById('loginForm');
@@ -12,6 +11,10 @@ if (loginForm) {
         const errorMessage = document.getElementById('errorMessage');
         
         try {
+            errorMessage.textContent = 'Memproses permintaan ke server...';
+            errorMessage.classList.add('show');
+            errorMessage.style.color = '#0066cc';
+
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -20,9 +23,14 @@ if (loginForm) {
                 body: JSON.stringify({ email, password })
             });
             
+            errorMessage.textContent = 'Respon awal diterima. Membaca data...';
+            
             const data = await response.json();
             
             if (response.ok) {
+                errorMessage.textContent = 'Login Sukses! Mengalihkan...';
+                errorMessage.style.color = 'green';
+
                 // Simpan token dan user info
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('userInfo', JSON.stringify(data.user));
@@ -34,11 +42,13 @@ if (loginForm) {
                     window.location.href = 'pages/user-dashboard.html';
                 }
             } else {
+                errorMessage.style.color = '#dc3545';
                 errorMessage.textContent = data.message || 'Login gagal';
                 errorMessage.classList.add('show');
             }
         } catch (error) {
             console.error('Error:', error);
+            errorMessage.style.color = '#dc3545';
             errorMessage.textContent = 'Network/Syntax Error: ' + error.message;
             errorMessage.classList.add('show');
         }
