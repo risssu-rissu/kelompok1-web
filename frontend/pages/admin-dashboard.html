@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard Admin - Kelola data siswa dengan mudah">
+    <title>Admin Dashboard - Informasi Data Siswa</title>
+    <link rel="icon" type="image/png" href="/images/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- SheetJS for Excel Import/Export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">📚</div>
+                <h2>IDS Admin</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Menu Utama</div>
+                    <a href="#" class="nav-link active" onclick="showSection('dashboard')">
+                        <span>📊</span> Dashboard
+                    </a>
+                    <a href="#" class="nav-link" onclick="showSection('allStudents')">
+                        <span>👥</span> Data Siswa
+                    </a>
+                    <a href="#" class="nav-link" onclick="showSection('students')">
+                        <span>🏫</span> Data Kelas
+                    </a>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">Akun</div>
+                    <a href="#" class="nav-link" onclick="logout()">
+                        <span>🚪</span> Logout
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <p id="userInfo"></p>
+                <p style="margin-top: 4px;">Admin Panel v1.0</p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="user-menu">
+                    <span id="welcomeMessage"></span>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboardSection" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Total Siswa</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👨</div>
+                        <div class="stat-info">
+                            <h3 id="maleStudents">0</h3>
+                            <p>Laki-laki</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👩</div>
+                        <div class="stat-info">
+                            <h3 id="femaleStudents">0</h3>
+                            <p>Perempuan</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-info">
+                            <h3 id="totalClasses">0</h3>
+                            <p>Total Kelas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="welcome-card">
+                    <h2>Selamat Datang, Admin! 🎓</h2>
+                    <p>Kelola data seluruh siswa dengan mudah. Gunakan menu di sebelah kiri untuk menambah, mengedit, dan menghapus data siswa.</p>
+                </div>
+
+                <!-- NEW: Dashboard Widgets (Activity & Status) -->
+                <div class="dashboard-widgets-grid">
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h3 class="widget-title">Siswa Terbaru Ditambahkan</h3>
+                        </div>
+                        <div class="activity-list" id="activityFeed">
+                            <!-- Diisi oleh JS -->
+                            <div style="text-align: center; color: var(--gray-400); padding: 20px;">Memuat data...</div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-card">
+                        <div class="widget-header">
+                            <h3 class="widget-title">Ringkasan Status</h3>
+                        </div>
+                        <div id="statusSummary">
+                            <!-- Diisi oleh JS -->
+                            <div style="text-align: center; color: var(--gray-400); padding: 20px;">Memuat data...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- All Students Section (Master List) -->
+            <section id="allStudentsSection" class="content-section">
+                <div class="section-header">
+                    <h2>Semua Data Siswa</h2>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" onclick="exportExcel()">
+                            📥 Export Excel
+                        </button>
+                        <button class="btn btn-primary" onclick="openImportModal()">
+                            📤 Import Excel
+                        </button>
+                        <button class="btn btn-primary" onclick="openAddModal()">
+                            ➕ Tambah Siswa
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter-bar" style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <select id="filterClass" class="form-group" style="padding: 10px; border-radius: var(--r-sm); border: 1.5px solid var(--gray-200); width: 180px; margin-bottom: 0;" onchange="renderMasterTable()">
+                        <option value="">Semua Kelas</option>
+                        <!-- Diisi oleh JS -->
+                    </select>
+                    
+                    <select id="filterStatus" class="form-group" style="padding: 10px; border-radius: var(--r-sm); border: 1.5px solid var(--gray-200); width: 180px; margin-bottom: 0;" onchange="renderMasterTable()">
+                        <option value="">Semua Status</option>
+                        <option value="Aktif">Aktif</option>
+                        <option value="Lulus">Lulus</option>
+                        <option value="Pindah">Pindah</option>
+                        <option value="Keluar">Keluar</option>
+                    </select>
+
+                    <div class="search-bar" style="flex: 1; min-width: 250px; margin-bottom: 0;">
+                        <input type="text" id="searchMasterInput" placeholder="Cari nama atau NISN..." onkeyup="renderMasterTable()">
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>NISN</th>
+                                <th>Nama Lengkap</th>
+                                <th>Kelas</th>
+                                <th>L/P</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="masterStudentsTableBody">
+                            <!-- Diisi oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Class Students Section -->
+            <section id="studentsSection" class="content-section">
+                <div id="classSelectionView">
+                    <div class="section-header">
+                        <h2>Data Berdasarkan Kelas</h2>
+                    </div>
+                    <div class="search-bar" style="margin-bottom: 16px;">
+                        <input type="text" id="classSearchInput" placeholder="Cari kelas..." onkeyup="searchClasses()">
+                    </div>
+                    <div id="classCardsContainer" class="class-cards-grid"></div>
+                </div>
+
+                <div id="studentListView" style="display: none;">
+                    <div class="section-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button class="btn btn-secondary" onclick="backToClassSelection()" style="padding: 8px 14px;">
+                                ← Kembali
+                            </button>
+                            <h2 id="selectedClassName">Data Siswa</h2>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="exportClassExcel()">
+                                📥 Export Kelas
+                            </button>
+                            <button class="btn btn-primary" onclick="openAddModalForClass()">
+                                ➕ Tambah Siswa
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                        <div class="search-bar" style="flex: 1; min-width: 280px; margin-bottom: 0;">
+                            <input type="text" id="searchInput" placeholder="Cari siswa (nama, NISN)..." onkeyup="searchStudents()">
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>No. Absen</th>
+                                    <th>NISN</th>
+                                    <th>Nama Lengkap</th>
+                                    <th>Jenis Kelamin</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal Add/Edit Student -->
+    <div id="studentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Tambah Siswa</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nisn">NISN *</label>
+                        <input type="text" id="nisn" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nama">Nama Lengkap *</label>
+                        <input type="text" id="nama" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="jenisKelamin">Jenis Kelamin *</label>
+                        <select id="jenisKelamin" required>
+                            <option value="">Pilih</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kelas">Kelas *</label>
+                        <input type="text" id="kelas" placeholder="Contoh: X IPA 1" required>
+                        <small style="color: var(--gray-400); font-size: 11px; margin-top: 3px; display: block;">
+                            No. absen otomatis diurutkan per kelas
+                        </small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tanggalLahir">Tanggal Lahir *</label>
+                        <input type="date" id="tanggalLahir" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="statusKeaktifan">Status Keaktifan *</label>
+                        <select id="statusKeaktifan" required>
+                            <option value="Aktif">Aktif</option>
+                            <option value="Lulus">Lulus</option>
+                            <option value="Pindah">Pindah</option>
+                            <option value="Keluar">Keluar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="noTelepon">No. Telepon</label>
+                        <input type="tel" id="noTelepon" value="-">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailStudent">Email</label>
+                        <input type="email" id="emailStudent" placeholder="opsional">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="alamat">Alamat *</label>
+                    <textarea id="alamat" rows="2" required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Import Excel -->
+    <div id="importModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Import Data Excel</h2>
+                <span class="close" onclick="closeImportModal()">&times;</span>
+            </div>
+            <div style="padding: 24px;">
+                <p style="font-size: 14px; color: var(--gray-600); margin-bottom: 16px;">
+                    Upload file Excel (.xlsx atau .xls) yang berisi data siswa. Pastikan format kolom sesuai dengan template standar.
+                </p>
+                <div style="background: var(--blue-50); padding: 12px; border-radius: var(--r-sm); margin-bottom: 20px;">
+                    <strong style="font-size: 12px; color: var(--blue-700); display: block; margin-bottom: 4px;">Format Kolom yang Dibutuhkan:</strong>
+                    <code style="font-size: 11px; color: var(--blue-900);">nisn, nama, jenisKelamin, kelas, alamat, tanggalLahir, statusKeaktifan
+                </div>
+                <div class="form-group">
+                    <input type="file" id="excelFile" accept=".xlsx, .xls" style="padding: 10px 0; border: none;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeImportModal()">Batal</button>
+                <button type="button" class="btn btn-primary" onclick="processExcelImport()">Pilih File & Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detail Student -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detail Siswa</h2>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div id="studentDetailContent" class="detail-content"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeDetailModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:latest
+    container_name: ids_mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - ids_network
+
+  # Node.js Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ids_backend
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGODB_URI=mongodb://mongodb:27017/student_management
+      - JWT_SECRET=${JWT_SECRET:-your_fallback_secure_jwt_secret}
+    depends_on:
+      - mongodb
+    networks:
+      - ids_network
+
+
+volumes:
+  mongodb_data:
+
+networks:
+  ids_network:
+    driver: bridge
