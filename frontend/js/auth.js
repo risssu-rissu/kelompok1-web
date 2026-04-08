@@ -1,5 +1,5 @@
-// API URL
-const API_URL = '/api';
+// API_URL akan diambil dari config.js yang diload sebelum auth.js
+
 
 // Login Form Handler
 const loginForm = document.getElementById('loginForm');
