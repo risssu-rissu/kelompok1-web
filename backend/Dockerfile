@@ -9,6 +9,6 @@ RUN npm install
 # Copy semua kode backend
 COPY . .
 
-EXPOSE 5001
+EXPOSE 5041
 
 CMD ["npm", "start"]

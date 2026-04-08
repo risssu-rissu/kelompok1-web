@@ -11,7 +11,7 @@ if (loginForm) {
         const errorMessage = document.getElementById('errorMessage');
         
         try {
-            errorMessage.textContent = 'Memproses permintaan ke server...';
+            errorMessage.textContent = 'Menghubungi server...';
             errorMessage.classList.add('show');
             errorMessage.style.color = '#0066cc';
 
@@ -23,9 +23,20 @@ if (loginForm) {
                 body: JSON.stringify({ email, password })
             });
             
-            errorMessage.textContent = 'Respon awal diterima. Membaca data...';
+            // Baca sebagai text dulu untuk menghindari crash JSON parse
+            const responseText = await response.text();
             
-            const data = await response.json();
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                // Response bukan JSON (kemungkinan error dari proxy)
+                errorMessage.style.color = '#dc3545';
+                errorMessage.textContent = `Server mengembalikan respon tidak valid (HTTP ${response.status}). Cek log backend.`;
+                errorMessage.classList.add('show');
+                console.error('Response bukan JSON:', responseText.substring(0, 200));
+                return;
+            }
             
             if (response.ok) {
                 errorMessage.textContent = 'Login Sukses! Mengalihkan...';
@@ -49,7 +60,7 @@ if (loginForm) {
         } catch (error) {
             console.error('Error:', error);
             errorMessage.style.color = '#dc3545';
-            errorMessage.textContent = 'Network/Syntax Error: ' + error.message;
+            errorMessage.textContent = 'Gagal menghubungi server: ' + error.message;
             errorMessage.classList.add('show');
         }
     });

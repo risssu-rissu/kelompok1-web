@@ -19,9 +19,9 @@ services:
     container_name: ids_backend
     restart: unless-stopped
     ports:
-      - "5001:5001"
+      - "5041:5041"
     environment:
-      - PORT=5001
+      - PORT=5041
       - MONGODB_URI=mongodb://mongodb:27017/student_management
       - JWT_SECRET=smkn1_siswa_jwt_secret_key_2026_secure
     depends_on:
@@ -38,7 +38,7 @@ services:
       - "5031:5031"
     environment:
       - PORT=5031
-      - BACKEND_URL=http://backend:5001
+      - BACKEND_URL=http://backend:5041
     depends_on:
       - backend
     networks:
