@@ -17,7 +17,7 @@ WORKDIR /app
 COPY . .
 
 # 6. Ekspos port 5001 sesuai dengan backend web siswa
-EXPOSE 5001
+EXPOSE 5011
 
 # 7. Jalankan aplikasi (menjalankan server Node.js Web Informasi Data Siswa)
 WORKDIR /app/backend
