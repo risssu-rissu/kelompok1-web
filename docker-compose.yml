@@ -16,7 +16,7 @@ services:
   # Node.js Backend API
   backend:
     build: 
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: ids_backend
     restart: unless-stopped
