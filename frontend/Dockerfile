@@ -1,11 +1,14 @@
-FROM nginx:alpine
+FROM node:18-alpine
 
-# Salin semua file statis dari folder frontend ini
-# ke dalam direktori default Nginx html
-COPY . /usr/share/nginx/html
+WORKDIR /app
 
-# Ekspos port 80 untuk lalu lintas HTTP
-EXPOSE 80
+# Copy package files dan install dependencies
+COPY package*.json ./
+RUN npm install
 
-# Jalankan server
-CMD ["nginx", "-g", "daemon off;"]
+# Copy semua kode frontend
+COPY . .
+
+EXPOSE 5031
+
+CMD ["npm", "start"]

@@ -26,12 +26,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/students', require('./routes/students'));
 
-// Serve frontend static files
-app.use(express.static(path.join(__dirname, '../frontend')));
-
-// Fallback to index.html for any unknown routes (SPA support)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Error Handler
@@ -44,7 +41,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 
 // Start server: Tunggu MongoDB konek dulu, baru terima request
 const startServer = async () => {

@@ -13,17 +13,15 @@ services:
     networks:
       - ids_network
 
-  # Node.js Backend API
+  # Node.js Backend API (port 5001)
   backend:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    build: ./backend
     container_name: ids_backend
     restart: unless-stopped
     ports:
-      - "5011:5011"
+      - "5001:5001"
     environment:
-      - PORT=5011
+      - PORT=5001
       - MONGODB_URI=mongodb://mongodb:27017/student_management
       - JWT_SECRET=smkn1_siswa_jwt_secret_key_2026_secure
     depends_on:
@@ -31,6 +29,20 @@ services:
     networks:
       - ids_network
 
+  # Frontend Static Server (port 5031)
+  frontend:
+    build: ./frontend
+    container_name: ids_frontend
+    restart: unless-stopped
+    ports:
+      - "5031:5031"
+    environment:
+      - PORT=5031
+      - BACKEND_URL=http://backend:5001
+    depends_on:
+      - backend
+    networks:
+      - ids_network
 
 volumes:
   mongodb_data:
