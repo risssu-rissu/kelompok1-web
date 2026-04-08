@@ -1,8 +1,19 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+// Load .env file jika ada (untuk development lokal).
+// Di Docker, env vars sudah di-set langsung oleh docker-compose.yml.
+// override: false memastikan env vars dari Docker tidak ditimpa oleh .env file.
+require('dotenv').config({ path: path.join(__dirname, '.env'), override: false });
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/database');
+
+// Log environment status saat startup
+console.log('=== Environment Check ===');
+console.log('PORT:', process.env.PORT || '(default)');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? '✅ Set' : '❌ MISSING');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ Set' : '❌ MISSING');
+console.log('=========================');
 
 const app = express();
 

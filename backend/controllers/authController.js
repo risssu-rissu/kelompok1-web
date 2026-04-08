@@ -1,9 +1,18 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+// Cek JWT_SECRET saat file di-load
+if (!process.env.JWT_SECRET) {
+  console.error('⚠️  WARNING: JWT_SECRET belum di-set! Token tidak akan bisa dibuat.');
+}
+
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+  }
+  return jwt.sign({ id }, secret, {
     expiresIn: '30d'
   });
 };
@@ -70,7 +79,9 @@ exports.login = async (req, res) => {
       token: generateToken(user._id)
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error('❌ Login error:', error.message);
+    console.error('   JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    res.status(500).json({ message: 'Server error: ' + error.message });
   }
 };
 

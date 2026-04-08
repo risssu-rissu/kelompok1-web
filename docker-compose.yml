@@ -25,7 +25,7 @@ services:
     environment:
       - PORT=5001
       - MONGODB_URI=mongodb://mongodb:27017/student_management
-      - JWT_SECRET=${JWT_SECRET:-your_fallback_secure_jwt_secret}
+      - JWT_SECRET=smkn1_siswa_jwt_secret_key_2026_secure
     depends_on:
       - mongodb
     networks:
