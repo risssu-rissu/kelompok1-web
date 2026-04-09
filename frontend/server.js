@@ -7,15 +7,18 @@ const PORT = process.env.PORT || 5031;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5041';
 
 // Proxy semua request /api/* ke backend server
+// Menggunakan syntax http-proxy-middleware v3: path filter sebagai argument pertama
 app.use('/api', createProxyMiddleware({
     target: BACKEND_URL,
     changeOrigin: true,
     pathRewrite: {
-        '^/api': '/api'
+        '^/': '/api/'  // Express strips '/api' prefix, so we add it back
     },
-    onError: (err, req, res) => {
-        console.error('Proxy error:', err.message);
-        res.status(502).json({ message: 'Backend tidak dapat dihubungi' });
+    on: {
+        error: (err, req, res) => {
+            console.error('Proxy error:', err.message);
+            res.status(502).json({ message: 'Backend tidak dapat dihubungi' });
+        }
     }
 }));
 
