@@ -29,15 +29,15 @@ services:
     networks:
       - ids_network
 
-  # Frontend Static Server (port 5031)
+  # Frontend Static Server (port 5001)
   frontend:
     build: ./frontend
     container_name: ids_frontend
     restart: unless-stopped
     ports:
-      - "5031:5031"
+      - "5001:5001"
     environment:
-      - PORT=5031
+      - PORT=5001
       - BACKEND_URL=http://backend:5041
     depends_on:
       - backend
